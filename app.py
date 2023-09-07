@@ -1,19 +1,11 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
-
-title = "Pro compliance csv manager"
-
-UPLOAD_FOLDER = './csv_files/'
-ALLOWED_EXTENSIONS = set(['csv'])
+from functions import title, UPLOAD_FOLDER, is_allowed_file
+from static.constants import title, UPLOAD_FOLDER
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 @app.route("/")
@@ -26,7 +18,7 @@ def load_file():
     if request.method == "POST":
         file = request.files["file"]
         filename = secure_filename(file.filename)
-        if file and allowed_file(filename):
+        if file and is_allowed_file(filename):
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             return render_template("successed_file_load.html", title=title, filename=filename)
         else:
