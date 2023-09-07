@@ -32,8 +32,8 @@ def load_file():
 
 @app.route("/csv-management/get_files_list")
 def get_files_list():
-    data = get_csv_list()
-    return render_template("get_files_list.html", title=title, data=data)
+    files = get_csv_list()
+    return render_template("get_files_list.html", title=title, files=files)
 
 
 if __name__ == '__main__':

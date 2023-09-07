@@ -7,10 +7,12 @@ content %}
 </style>
 <h1>All files data:</h1>
 <hr />
-{% for d in data %}
-<p>{{ d[0] }}</p>
-{% for h in d[1] %}
-<p class="inline">{{ h + ", " }}</p>
+{% for file in files %}
+<!-- file[0] is csv file name -->
+<p>{{ file[0] }}</p>
+<!-- file[1] is list of headers for file[0] file -->
+{% for header in d[1] %}
+<p class="inline">{{ header + ", " }}</p>
 {% endfor %}
 <hr />
 {% endfor %}{% endblock %}
