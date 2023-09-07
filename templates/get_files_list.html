@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block title %}{{ title }}{% endblock %} {% block
+content %}
+<style>
+  .inline {
+    display: inline;
+  }
+</style>
+<h1>All files data:</h1>
+<hr />
+{% for d in data %}
+<p>{{ d[0] }}</p>
+{% for h in d[1] %}
+<p class="inline">{{ h + ", " }}</p>
+{% endfor %}
+<hr />
+{% endfor %}{% endblock %}
