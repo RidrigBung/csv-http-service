@@ -1,0 +1,8 @@
+{% extends "base.html" %} {% block title %}{{ title }}{% endblock %} {% block
+content %}
+<h1>Error:</h1>
+{% if filename %}
+<p>Error with <i>{{ filename }}</i>: {{ error }}</p>
+{% else %}
+<p>{{ error }}</p>
+{% endif %} {% endblock %}

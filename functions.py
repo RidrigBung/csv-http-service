@@ -32,3 +32,12 @@ def get_csv_file_data(filename: str) -> List[List[str]]:
         reader = csv.reader(csvfile, delimiter=',')
         data = list(reader)
     return data
+
+
+def is_exists(filename: str) -> bool:
+    check_folder()
+    files = os.listdir(UPLOAD_FOLDER)
+    for file in files:
+        if file == filename:
+            return True
+    return False
