@@ -20,12 +20,13 @@ def load_file():
     if request.method == "POST":
         file = request.files["file"]
         filename = secure_filename(file.filename)
-        if file and is_allowed_file(filename):
-            check_folder()
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            return render_template("successed_file_load.html", title=title, filename=filename)
-        else:
-            return render_template("failed_file_load.html", title=title, filename=filename)
+        if not file:
+            return render_template("bad_file.html", title=title, error="empty file")
+        if not is_allowed_file(filename):
+            return render_template("bad_file.html", title=title, error="wrong file extension")
+        check_folder()
+        file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        return render_template("successed_file_load.html", title=title, filename=filename)
     # request.method == "GET"
     return render_template("load_file.html", title=title)
 
@@ -43,7 +44,7 @@ def get_filename():
         filename_select = request.form["filename_select"]
         if not filename_text:
             if not filename_select:
-                return render_template("bad_filename.html", title=title, error="empty input")
+                return render_template("bad_file.html", title=title, error="empty input")
             else:
                 filename = filename_select
         else:
@@ -52,7 +53,7 @@ def get_filename():
         check_folder()
         files = os.listdir(UPLOAD_FOLDER)
         if filename not in files:
-            return render_template("bad_filename.html", title=title, error="no such file")
+            return render_template("bad_file.html", title=title, error="no such file")
         return redirect(url_for("get_file_data", filename=filename))
     # request.method == "GET"
     files = os.listdir(UPLOAD_FOLDER)
