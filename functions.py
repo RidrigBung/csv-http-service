@@ -14,14 +14,18 @@ def check_folder():
         os.mkdir(UPLOAD_FOLDER)
 
 
-def get_csv_list() -> List[List[Union[str, List[str]]]]:
-    headers: List[List] = []
+def get_csv_list() -> List[Union[str, List[str]]]:
+    headers: List[List[str]] = []
     check_folder()
     files = os.listdir(UPLOAD_FOLDER)
     for filename in files:
-        with open(os.path.join(UPLOAD_FOLDER, filename), "r") as csvfile:
-            reader = csv.reader(csvfile, delimiter=',')
-            headers.append(list(next(reader)))
+        with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csvfile:
+            print(os.path.join(UPLOAD_FOLDER, filename))
+            try:
+                reader = csv.reader(csvfile, delimiter=',')
+                headers.append(list(next(reader)))
+            except StopIteration:
+                headers.append([])
     files = [filename.split('.')[0] for filename in files]
     return zip(files, headers)
 

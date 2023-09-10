@@ -9,37 +9,37 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Ограничение максимального размера файла в 64 мегабайт
 app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024
 
+pages = {"list of all files": "get_files",
+         "load file": "load_file", "open file": "get_filename"}
+
 
 @app.route("/")
 def index():
-    return render_template("index.html", title=title)
+    return render_template("index.html")
 
 
-@app.route("/csv-management/load-file", methods=["GET", "POST"])
+@app.route("/api/v1/csv-management")
+def home():
+    return render_template("home.html", title=title, pages=pages)
+
+
+@app.route("/api/v1/csv-management/load-file", methods=["GET", "POST"])
 def load_file():
     if request.method == "POST":
         file = request.files["file"]
         filename = secure_filename(file.filename)
-        if not file:
-            return render_template("bad_input.html", title=title, filename=filename, error="empty file")
         if not is_allowed_file(filename):
             return render_template("bad_input.html", title=title, filename=filename, error="wrong file extension")
         if is_exists(filename):
             return render_template("bad_input.html", title=title, filename=filename, error="file with that name is already exist")
         check_folder()
         file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-        return render_template("successed_file_load.html", title=title, filename=filename)
+        return render_template("successed-file-load.html", title=title, filename=filename)
     # request.method == "GET"
-    return render_template("load_file.html", title=title)
+    return render_template("load-file-form.html", title=title)
 
 
-@app.route("/csv-management/get_files_list")
-def get_files_list():
-    files = get_csv_list()
-    return render_template("get_files_list.html", title=title, files=files)
-
-
-@app.route("/csv-management/get_file_data", methods=["GET", "POST"])
+@app.route("/api/v1/csv-management/select-file", methods=["GET", "POST"])
 def get_filename():
     if request.method == "POST":
         filename_text = request.form["filename_text"]
@@ -51,21 +51,29 @@ def get_filename():
                 filename = filename_select
         else:
             filename = filename_text
-        filename += ".csv"
-        if not is_exists(filename):
+        if not is_exists(filename + ".csv"):
             return render_template("bad_input.html", title=title, filename=filename, error="no such file")
-        return redirect(url_for("get_file_data", filename=filename))
+        return redirect(url_for("get_file", filename=filename))
     # request.method == "GET"
     files = os.listdir(UPLOAD_FOLDER)
     options = [filename.split('.')[0] for filename in files]
     options.insert(0, "")
-    return render_template("get_filename.html", title=title, options=options)
+    return render_template("get-filename-form.html", title=title, options=options)
 
 
-@app.route("/csv-management/get_file_data/<filename>")
-def get_file_data(filename):
+# GET /files
+@app.route("/api/v1/csv-management/files")
+def get_files():
+    files = get_csv_list()
+    return render_template("get-files.html", title=title, files=files)
+
+
+# GET files/<filename>
+@app.route("/api/v1/csv-management/files/<filename>")
+def get_file(filename):
+    filename += ".csv"
     data = get_csv_file_data(filename)
-    return render_template("get_file_data.html", title=title, filename=filename, data=data)
+    return render_template("get-file.html", title=title, filename=filename, data=data)
 
 
 if __name__ == '__main__':

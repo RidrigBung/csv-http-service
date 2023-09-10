@@ -1,0 +1,6 @@
+{% extends "base.html" %} {% block title %}{{ title }}{% endblock %} {% block
+content %}
+<h1>Pro compliance csv manager</h1>
+{% for text, url in pages.items() %}
+<p><a href="{{ url_for(url)}}">{{ text }}</a></p>
+{% endfor %} {% endblock %}
