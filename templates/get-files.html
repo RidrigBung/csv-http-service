@@ -10,9 +10,9 @@ content %}
 {% for file in files %}
 <!-- file[0] is csv file name -->
 <p>{{ file[0] }}</p>
-<!-- file[1] is list of headers for file[0] file -->
+<!-- file[1] is list of headers for file[0] file. file[2] is delimiter for file[0] file -->
 {% for header in file[1] %}
-<p class="inline">{{ header + ", " }}</p>
+<p class="inline">{{ header + file[2] }}</p>
 {% endfor %}
 <hr />
 {% endfor %}{% endblock %}

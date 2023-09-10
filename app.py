@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
-from functions import is_allowed_file, check_folder, get_csv_list, get_csv_file_data, is_exists
+from functions import is_allowed_file, check_folder, get_csv_list, get_csv_file_data, is_exists, save_delimiter
 from constants import title, UPLOAD_FOLDER
 
 app = Flask(__name__)
@@ -27,6 +27,7 @@ def home():
 def load_file():
     if request.method == "POST":
         file = request.files["file"]
+        delimiter = request.form["delimiter"]
         filename = secure_filename(file.filename)
         if not is_allowed_file(filename):
             return render_template("bad_input.html", title=title, filename=filename, error="wrong file extension")
@@ -34,6 +35,8 @@ def load_file():
             return render_template("bad_input.html", title=title, filename=filename, error="file with that name is already exist")
         check_folder()
         file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        print(delimiter)
+        save_delimiter(filename, delimiter)
         return render_template("successed-file-load.html", title=title, filename=filename)
     # request.method == "GET"
     return render_template("load-file-form.html", title=title)

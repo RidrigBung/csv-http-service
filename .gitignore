@@ -2,3 +2,4 @@ venv
 .vscode 
 __pycache__
 csv_files
+delimiters.json
