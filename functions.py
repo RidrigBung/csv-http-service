@@ -1,7 +1,7 @@
 import os
 import csv
 import json
-from typing import List, Union
+from typing import List, Tuple, Union
 from constants import ALLOWED_EXTENSIONS, UPLOAD_FOLDER, DELIMITERS_STORAGE
 
 
@@ -17,7 +17,7 @@ def check_folder():
         open(DELIMITERS_STORAGE, 'a').close()
 
 
-def get_csv_list() -> List[Union[str, List[List[str]], str]]:
+def get_csv_list() -> Tuple[Union[str, List[List[str]], str]]:
     headers: List[List[str]] = []
     delimiters: List[str] = []
     check_folder()
@@ -34,19 +34,20 @@ def get_csv_list() -> List[Union[str, List[List[str]], str]]:
                 # file is empty
                 headers.append([])
                 delimiters.append("")
-    files = [filename.split('.')[0] for filename in files]
+    files = (filename.split('.')[0] for filename in files)
     return zip(files, headers, delimiters)
 
 
-def get_csv_file_data(filename: str) -> List[List[str]]:
-    data = []
+def get_csv_file_data(filename: str) -> Tuple[Union[List[List[str]], str]]:
+    rows = []
     with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csv_file:
         try:
             reader = csv.reader(csv_file, delimiter=get_delimiter(filename))
-            data = list(reader)
+            rows = list(reader)
         except StopIteration:
             # file is empty
             pass
+    data = ((rows, get_delimiter(filename)))
     return data
 
 
