@@ -84,3 +84,27 @@ def get_delimiter(filename: str) -> str:
                 delimiter = i_delimiter
                 break
     return delimiter
+
+
+def delete_delimiter(filename: str) -> None:
+    with open(DELIMITERS_STORAGE, "r") as json_file:
+        # if file DELIMITERS_STORAGE is empty
+        if os.stat(DELIMITERS_STORAGE).st_size == 0:
+            file_data = []
+        else:
+            file_data = list(json.load(json_file))
+            f_index = 0
+            for index, file in enumerate(file_data):
+                if list(file.keys())[0] == filename:
+                    f_index = index
+                    break
+
+    file_data.pop(f_index)
+    with open(DELIMITERS_STORAGE, "w") as json_file:
+        json.dump(file_data, json_file, indent=4)
+
+
+def delete_csv_file_data(filename: str) -> None:
+    if os.path.exists(os.path.join(UPLOAD_FOLDER, filename)):
+        os.remove(os.path.join(UPLOAD_FOLDER, filename))
+        delete_delimiter(filename)

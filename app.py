@@ -1,7 +1,10 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
-from functions import is_allowed_file, check_folder, get_csv_list, get_csv_file_data, is_exists, save_delimiter
+from functions import \
+    is_allowed_file, check_folder, get_csv_list,\
+    get_csv_file_data, is_exists, save_delimiter,\
+    delete_csv_file_data
 from constants import title, UPLOAD_FOLDER
 
 app = Flask(__name__)
@@ -72,11 +75,15 @@ def get_files():
 
 
 # GET files/<filename>
-@app.route("/api/v1/csv-management/files/<filename>")
+@app.route("/api/v1/csv-management/files/<filename>", methods=["GET", "POST"])
 def get_file(filename):
-    filename += ".csv"
-    data = get_csv_file_data(filename)
-    return render_template("get-file.html", title=title, filename=filename, data=data)
+    if request.method == "GET":
+        filename += ".csv"
+        data = get_csv_file_data(filename)
+        return render_template("get-file.html", title=title, filename=filename, data=data)
+    # if request.method == "POST":
+    delete_csv_file_data(filename)
+    return render_template("successed-file-delete.html", title=title, filename=filename)
 
 
 if __name__ == '__main__':

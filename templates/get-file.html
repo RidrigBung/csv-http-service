@@ -4,8 +4,17 @@ content %}
   .inline {
     display: inline;
   }
+  .head {
+    display: flex;
+    justify-content: space-between;
+  }
 </style>
-<h1>{{ filename }} file data:</h1>
+<div class="head">
+  <h1>{{ filename }} file data:</h1>
+  <form action="{{ url_for('get_file', filename=filename) }}" method="POST">
+    <input type="submit" value="Delete file" />
+  </form>
+</div>
 <hr />
 {% for row in data[0] %} {% for word in row %}
 <p class="inline">{{ word + data[1] }}</p>
