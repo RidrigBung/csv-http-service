@@ -51,6 +51,7 @@ def get_filename():
         filename_text = request.form["filename_text"]
         filename_select = request.form["filename_select"]
         headers_to_sort = request.form["headers_to_sort"]
+        headers_to_filter = request.form["headers_to_filter"]
         if not filename_text:
             if not filename_select:
                 return render_template("bad_input.html", title=title, filename="", error="empty input")
@@ -61,8 +62,10 @@ def get_filename():
         if not is_exists(filename + ".csv"):
             return render_template("bad_input.html", title=title, filename=filename, error="no such file")
         if not is_correct_header_list(filename + ".csv", headers_to_sort):
-            return render_template("bad_input.html", title=title, filename=filename, error="wrong headers")
-        return redirect(url_for("get_file", filename=filename, headers_to_sort=headers_to_sort))
+            return render_template("bad_input.html", title=title, filename=filename, error="wrong sorting headers")
+        if not is_correct_header_list(filename + ".csv", headers_to_filter):
+            return render_template("bad_input.html", title=title, filename=filename, error="wrong filtering headers")
+        return redirect(url_for("get_file", filename=filename, headers_to_sort=headers_to_sort, headers_to_filter=headers_to_filter))
     # request.method == "GET"
     files = os.listdir(UPLOAD_FOLDER)
     options = [filename.split('.')[0] for filename in files]
@@ -82,8 +85,9 @@ def get_files():
 def get_file(filename):
     if request.method == "GET":
         headers_to_sort = request.args.get("headers_to_sort").split(" ")
+        headers_to_filter = request.args.get("headers_to_filter").split(" ")
         filename += ".csv"
-        data = get_csv_file_data(filename, headers_to_sort)
+        data = get_csv_file_data(filename, headers_to_sort, headers_to_filter)
         return render_template("get-file.html", title=title, filename=filename, data=data)
     # if request.method == "POST":
     delete_csv_file_data(filename)

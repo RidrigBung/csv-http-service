@@ -4,6 +4,7 @@ import json
 from typing import List, Tuple, Union
 from constants import ALLOWED_EXTENSIONS, UPLOAD_FOLDER, DELIMITERS_STORAGE
 from csv_sort import csv_sort_multiparam
+from csv_filter import csv_filter_func
 
 
 def is_allowed_file(filename: str) -> bool:
@@ -32,7 +33,7 @@ def get_csv_list() -> Tuple[Union[str, List[List[str]], str]]:
     return zip(files, headers, delimiters)
 
 
-def get_csv_file_data(filename: str, headers_to_sort: List[str]) -> Tuple[Union[List[List[str]], str]]:
+def get_csv_file_data(filename: str, headers_to_sort: List[str], headers_to_filter: List[str]) -> Tuple[Union[List[List[str]], str]]:
     rows: List[List[str]] = []
     with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csv_file:
         try:
@@ -41,6 +42,9 @@ def get_csv_file_data(filename: str, headers_to_sort: List[str]) -> Tuple[Union[
             # if headers_to_sort is not empty
             if headers_to_sort != [""]:
                 file_data = csv_sort_multiparam(file_data, headers_to_sort)
+            # if headers_to_filter is not empty
+            if headers_to_filter != [""]:
+                file_data = csv_filter_func(file_data, headers_to_filter)
         except StopIteration:
             # file is empty
             file_data = []
