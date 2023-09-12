@@ -1,6 +1,7 @@
 import os
 import csv
 import json
+import operator
 from typing import List, Tuple, Union
 from constants import ALLOWED_EXTENSIONS, UPLOAD_FOLDER, DELIMITERS_STORAGE
 
@@ -23,30 +24,32 @@ def get_csv_list() -> Tuple[Union[str, List[List[str]], str]]:
     check_folder()
     files = os.listdir(UPLOAD_FOLDER)
     for filename in files:
-        with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csv_file:
-            try:
-                delimiter = get_delimiter(filename)
-                reader = csv.reader(
-                    csv_file, delimiter=delimiter)
-                headers.append(list(next(reader)))
-                delimiters.append(delimiter)
-            except StopIteration:
-                # file is empty
-                headers.append([])
-                delimiters.append("")
+        header = get_csv_headers(filename)
+        headers.append(header)
+        delimiter = get_delimiter(filename)
+        delimiters.append(delimiter)
     files = (filename.split('.')[0] for filename in files)
     return zip(files, headers, delimiters)
 
 
-def get_csv_file_data(filename: str) -> Tuple[Union[List[List[str]], str]]:
-    rows = []
+def get_csv_file_data(filename: str, headers_to_sort: List[str]) -> Tuple[Union[List[List[str]], str]]:
+    rows: List[List[str]] = []
     with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csv_file:
         try:
             reader = csv.reader(csv_file, delimiter=get_delimiter(filename))
-            rows = list(reader)
+            headers = list(next(reader))
+            print("HEADEEERS: ", type(headers_to_sort),
+                  headers_to_sort, *headers_to_sort)
+            if headers_to_sort != [""]:
+                rows = sorted(reader, key=operator.itemgetter(
+                    *headers_to_sort), reverse=False)
+            else:
+                rows = list(reader)
+            print(rows)
         except StopIteration:
             # file is empty
-            pass
+            rows = []
+    rows.insert(0, headers)
     data = ((rows, get_delimiter(filename)))
     return data
 
@@ -108,3 +111,30 @@ def delete_csv_file_data(filename: str) -> None:
     if os.path.exists(os.path.join(UPLOAD_FOLDER, filename)):
         os.remove(os.path.join(UPLOAD_FOLDER, filename))
         delete_delimiter(filename)
+
+
+def get_csv_headers(filename: str) -> List[str]:
+    headers = []
+    with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csv_file:
+        try:
+            delimiter = get_delimiter(filename)
+            reader = csv.reader(
+                csv_file, delimiter=delimiter)
+            headers = list(next(reader))
+        except StopIteration:
+            # file is empty
+            pass
+    return headers
+
+
+def is_correct_header_list(filename: str, form_headers: List[str]) -> bool:
+    form_headers = form_headers.split(" ")
+    if form_headers == [""]:
+        return True
+    headers = get_csv_headers(filename)
+    for head in form_headers:
+        if head[0] == "-":
+            head = head[1:]
+        if head not in headers:
+            return False
+    return True
