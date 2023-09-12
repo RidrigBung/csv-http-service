@@ -1,10 +1,9 @@
 import os
 import csv
 import json
+import pandas as pd
 from typing import List, Tuple, Union
 from constants import ALLOWED_EXTENSIONS, UPLOAD_FOLDER, DELIMITERS_STORAGE
-from csv_sort import csv_sort_multiparam
-from csv_filter import csv_filter_func
 
 
 def is_allowed_file(filename: str) -> bool:
@@ -34,21 +33,32 @@ def get_csv_list() -> Tuple[Union[str, List[List[str]], str]]:
 
 
 def get_csv_file_data(filename: str, headers_to_sort: List[str], headers_to_filter: List[str]) -> Tuple[Union[List[List[str]], str]]:
-    rows: List[List[str]] = []
-    with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csv_file:
-        try:
-            reader = csv.reader(csv_file, delimiter=get_delimiter(filename))
-            file_data = list(reader)
-            # if headers_to_sort is not empty
-            if headers_to_sort != [""]:
-                file_data = csv_sort_multiparam(file_data, headers_to_sort)
-            # if headers_to_filter is not empty
-            if headers_to_filter != [""]:
-                file_data = csv_filter_func(file_data, headers_to_filter)
-        except StopIteration:
-            # file is empty
-            file_data = []
-    data = ((file_data, get_delimiter(filename)))
+    # if headers_to_filter is not empty
+    if headers_to_filter != [""]:
+        file_df = pd.read_csv(os.path.join(
+            UPLOAD_FOLDER, filename), usecols=headers_to_filter)
+    else:
+        file_df = pd.read_csv(os.path.join(
+            UPLOAD_FOLDER, filename))
+    # if headers_to_sort is not empty
+    if headers_to_sort != [""]:
+        ascendings: List[bool] = []
+        clean_headers_to_filter: List[str] = []
+        for header in headers_to_filter:
+            if header[0] == "-":
+                ascendings.append(True)
+                clean_headers_to_filter.append(header[1:])
+            else:
+                ascendings.append(False)
+                clean_headers_to_filter.append(header)
+        file_df.sort(clean_headers_to_filter,
+                     ascending=ascendings)
+    file_head = file_df.columns.tolist()
+    file_body = file_df.values.tolist()
+    file_data = file_head + file_body
+
+    print(file_data)
+    data = (file_data, get_delimiter(filename))
     return data
 
 
