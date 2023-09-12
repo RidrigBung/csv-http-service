@@ -1,9 +1,9 @@
 import os
 import csv
 import json
-import operator
 from typing import List, Tuple, Union
 from constants import ALLOWED_EXTENSIONS, UPLOAD_FOLDER, DELIMITERS_STORAGE
+from csv_sort import csv_sort_multiparam
 
 
 def is_allowed_file(filename: str) -> bool:
@@ -37,20 +37,14 @@ def get_csv_file_data(filename: str, headers_to_sort: List[str]) -> Tuple[Union[
     with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csv_file:
         try:
             reader = csv.reader(csv_file, delimiter=get_delimiter(filename))
-            headers = list(next(reader))
-            print("HEADEEERS: ", type(headers_to_sort),
-                  headers_to_sort, *headers_to_sort)
+            file_data = list(reader)
+            # if headers_to_sort is not empty
             if headers_to_sort != [""]:
-                rows = sorted(reader, key=operator.itemgetter(
-                    *headers_to_sort), reverse=False)
-            else:
-                rows = list(reader)
-            print(rows)
+                file_data = csv_sort_multiparam(file_data, headers_to_sort)
         except StopIteration:
             # file is empty
-            rows = []
-    rows.insert(0, headers)
-    data = ((rows, get_delimiter(filename)))
+            file_data = []
+    data = ((file_data, get_delimiter(filename)))
     return data
 
 
