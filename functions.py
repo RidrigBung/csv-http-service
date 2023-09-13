@@ -1,6 +1,7 @@
 import os
 import csv
 import json
+import pandas as pd
 from typing import List, Tuple, Union
 from constants import ALLOWED_EXTENSIONS, UPLOAD_FOLDER, DELIMITERS_STORAGE
 
@@ -23,31 +24,39 @@ def get_csv_list() -> Tuple[Union[str, List[List[str]], str]]:
     check_folder()
     files = os.listdir(UPLOAD_FOLDER)
     for filename in files:
-        with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csv_file:
-            try:
-                delimiter = get_delimiter(filename)
-                reader = csv.reader(
-                    csv_file, delimiter=delimiter)
-                headers.append(list(next(reader)))
-                delimiters.append(delimiter)
-            except StopIteration:
-                # file is empty
-                headers.append([])
-                delimiters.append("")
+        header = get_csv_headers(filename)
+        headers.append(header)
+        delimiter = get_delimiter(filename)
+        delimiters.append(delimiter)
     files = (filename.split('.')[0] for filename in files)
     return zip(files, headers, delimiters)
 
 
-def get_csv_file_data(filename: str) -> Tuple[Union[List[List[str]], str]]:
-    rows = []
-    with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csv_file:
-        try:
-            reader = csv.reader(csv_file, delimiter=get_delimiter(filename))
-            rows = list(reader)
-        except StopIteration:
-            # file is empty
-            pass
-    data = ((rows, get_delimiter(filename)))
+def get_csv_file_data(filename: str, headers_to_sort: List[str], headers_to_filter: List[str]) -> Tuple[Union[List[List[str]], str]]:
+    # if headers_to_filter is not empty
+    if headers_to_filter != [""]:
+        file_df = pd.read_csv(os.path.join(
+            UPLOAD_FOLDER, filename), delimiter=get_delimiter(filename), usecols=headers_to_filter)
+    else:
+        file_df = pd.read_csv(os.path.join(
+            UPLOAD_FOLDER, filename), delimiter=get_delimiter(filename))
+    # if headers_to_sort is not empty
+    if headers_to_sort != [""]:
+        ascendings: List[bool] = []
+        clean_headers_to_filter: List[str] = []
+        for header in headers_to_sort:
+            if header[0] == "-":
+                ascendings.append(False)
+                clean_headers_to_filter.append(header[1:])
+            else:
+                ascendings.append(True)
+                clean_headers_to_filter.append(header)
+        file_df = file_df.sort_values(clean_headers_to_filter,
+                                      ascending=ascendings)
+    file_head: List[List[str]] = [file_df.columns.tolist()]
+    file_body: List[List[str]] = file_df.values.tolist()
+    file_data: List[List[str]] = file_head + file_body
+    data = (file_data, get_delimiter(filename))
     return data
 
 
@@ -108,3 +117,30 @@ def delete_csv_file_data(filename: str) -> None:
     if os.path.exists(os.path.join(UPLOAD_FOLDER, filename)):
         os.remove(os.path.join(UPLOAD_FOLDER, filename))
         delete_delimiter(filename)
+
+
+def get_csv_headers(filename: str) -> List[str]:
+    headers = []
+    with open(os.path.join(UPLOAD_FOLDER, filename), encoding='utf-8') as csv_file:
+        try:
+            delimiter = get_delimiter(filename)
+            reader = csv.reader(
+                csv_file, delimiter=delimiter)
+            headers = list(next(reader))
+        except StopIteration:
+            # file is empty
+            pass
+    return headers
+
+
+def is_correct_header_list(filename: str, form_headers: List[str]) -> bool:
+    form_headers = form_headers.split(" ")
+    if form_headers == [""]:
+        return True
+    headers = get_csv_headers(filename)
+    for head in form_headers:
+        if head[0] == "-":
+            head = head[1:]
+        if head not in headers:
+            return False
+    return True

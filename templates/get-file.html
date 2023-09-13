@@ -16,8 +16,9 @@ content %}
   </form>
 </div>
 <hr />
-{% for row in data[0] %} {% for word in row %}
-<p class="inline">{{ word + data[1] }}</p>
+{% for row in data[0] %} {% for i in range(row|length - 1) %}
+<p class="inline">{{ row[i] }}{{ data[1] }}</p>
 {% endfor %}
+<p class="inline">{{ row[row|length - 1] }}</p>
 <br />
 {% endfor %}{% endblock %}
