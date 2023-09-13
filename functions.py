@@ -36,28 +36,26 @@ def get_csv_file_data(filename: str, headers_to_sort: List[str], headers_to_filt
     # if headers_to_filter is not empty
     if headers_to_filter != [""]:
         file_df = pd.read_csv(os.path.join(
-            UPLOAD_FOLDER, filename), usecols=headers_to_filter)
+            UPLOAD_FOLDER, filename), delimiter=get_delimiter(filename), usecols=headers_to_filter)
     else:
         file_df = pd.read_csv(os.path.join(
-            UPLOAD_FOLDER, filename))
+            UPLOAD_FOLDER, filename), delimiter=get_delimiter(filename))
     # if headers_to_sort is not empty
     if headers_to_sort != [""]:
         ascendings: List[bool] = []
         clean_headers_to_filter: List[str] = []
-        for header in headers_to_filter:
+        for header in headers_to_sort:
             if header[0] == "-":
-                ascendings.append(True)
+                ascendings.append(False)
                 clean_headers_to_filter.append(header[1:])
             else:
-                ascendings.append(False)
+                ascendings.append(True)
                 clean_headers_to_filter.append(header)
-        file_df.sort(clean_headers_to_filter,
-                     ascending=ascendings)
-    file_head = file_df.columns.tolist()
-    file_body = file_df.values.tolist()
-    file_data = file_head + file_body
-
-    print(file_data)
+        file_df = file_df.sort_values(clean_headers_to_filter,
+                                      ascending=ascendings)
+    file_head: List[List[str]] = [file_df.columns.tolist()]
+    file_body: List[List[str]] = file_df.values.tolist()
+    file_data: List[List[str]] = file_head + file_body
     data = (file_data, get_delimiter(filename))
     return data
 
