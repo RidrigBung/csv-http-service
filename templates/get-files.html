@@ -1,18 +1,16 @@
 {% extends "base.html" %} {% block title %}{{ title }}{% endblock %} {% block
 content %}
-<style>
-  .inline {
-    display: inline;
-  }
 </style>
-<h1>All files data:</h1>
-<hr />
+<h2 class="header-files">All files data:</h2>
 {% for file in files %}
-<!-- file[0] is csv file name -->
-<p>{{ file[0] }}</p>
-<!-- file[1] is list of headers for file[0] file. file[2] is delimiter for file[0] file -->
-{% for header in file[1] %}
-<p class="inline">{{ header + file[2] }}</p>
-{% endfor %}
-<hr />
-{% endfor %}{% endblock %}
+<div class="el-of-list">
+  <!-- file[0] is csv file name -->
+  <p>{{ file[0] }}:</p>
+  <!-- file[1] is list of headers for file[0] file. file[2] is delimiter for file[0] file -->
+  {% for index in range(file[1]|length - 1) %}
+  <p class="inline">{{ file[1][index] + file[2] }}</p>
+  {% endfor %}
+  <p class="inline">{{ file[1][file[1]|length - 1] }}</p>
+  {% endfor %}
+</div>
+{% endblock %}

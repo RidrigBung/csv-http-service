@@ -1,0 +1,80 @@
+/* global */
+* {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: azure;
+  font-family: Sans-serif;
+}
+
+.inline {
+  display: inline;
+}
+
+/* base.html */
+.header {
+  padding: 0.5em;
+  background-color: aqua;
+}
+
+.wrapper {
+  padding: 1em;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
+
+/* home.html */
+.home-menu {
+  text-align: center;
+  margin-top: 1em;
+  width: 300px;
+  background-color: aquamarine;
+  border-radius: 1em;
+}
+
+.home-element {
+  text-align: left;
+  margin-left: 30%;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+/* get-files.html */
+.header-files {
+  margin: 0.5em;
+}
+
+.el-of-list {
+  margin-top: 1em;
+}
+
+.el-of-list:last-child {
+  margin-bottom: 1em;
+}
+
+/* load-file-form.html */
+.header-load {
+  margin: 0.5em;
+}
+
+.el-of-load {
+  margin-bottom: 1em;
+}
+
+/* get-filename-form */
+.filename-select {
+  margin-bottom: 1em;
+}
+
+.el-of-file {
+  margin-bottom: 1em;
+}
+
+/* get-filename-form, get-file.html */
+.header-file {
+  margin: 0.5em;
+}

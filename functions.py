@@ -33,6 +33,10 @@ def get_csv_list() -> Tuple[Union[str, List[List[str]], str]]:
 
 
 def get_csv_file_data(filename: str, headers_to_sort: List[str], headers_to_filter: List[str]) -> Tuple[Union[List[List[str]], str]]:
+    # если файл пуст
+    if os.stat(os.path.join(
+            UPLOAD_FOLDER, filename)).st_size == 0:
+        return ([], "")
     # if headers_to_filter is not empty
     if headers_to_filter != [""]:
         file_df = pd.read_csv(os.path.join(

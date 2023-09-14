@@ -1,20 +1,16 @@
 {% extends "base.html" %} {% block title %}{{ title }}{% endblock %} {% block
 content %}
-<style>
-  .inline {
-    display: inline;
-  }
-</style>
-<h1>Write or select csv file name</h1>
+<h2 class="header-file">Write or select csv file name</h2>
 <form action="{{ url_for('get_filename') }}" method="post">
   <p><input type="text" name="filename_text" />.csv</p>
-  <select name="filename_select">
+  <p>or</p>
+  <select class="filename-select" name="filename_select">
     {% for option in options %}
     <option value="{{ option }}">{{ option }}</option>
     {% endfor %}
   </select>
   <p class="inline">.csv</p>
-  <p>
+  <p class="el-of-file">
     Остортировать по столбцам:
     <input type="text" name="headers_to_sort" />
     (опционально)
@@ -22,20 +18,20 @@ content %}
   <p>
     <i>Вводите названия столбцов через пробел в порядке убывания приоритета</i>
   </p>
-  <p>
+  <p class="el-of-file">
     <i
       >Если нужно отсортировать в обратном порядке поставьте "-" без кавычек
       перед названием столбца</i
     >
   </p>
-  <p>
+  <p class="el-of-file">
     Отфильтровать по столбцам:
     <input type="text" name="headers_to_filter" />
     (опционально)
   </p>
-  <p>
+  <p class="el-of-file">
     <i>Вводите названия столбцов через пробел</i>
   </p>
-  <p><input type="submit" value="Get data" /></p>
+  <p class="el-of-file"><input type="submit" value="Get data" /></p>
 </form>
 {% endblock %}
